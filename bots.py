@@ -1,6 +1,17 @@
 import requests
 from copy import deepcopy
 
+def obter_palavras():
+
+    url = 'https://www.ime.usp.br/~pf/dicios/br-sem-acentos.txt'
+    r = requests.get(url, allow_redirects=True)
+    if r.status_code==200:
+        print("Lista de palavras carregada com sucesso!")
+        return str(r.content.decode()).split('\n')
+        
+    else:
+        print("Erro: x", r.status_code)
+
 class BotSigma:
 
     lista_de_palavras = []
@@ -10,50 +21,25 @@ class BotSigma:
         self.tamanho_palavra = tamanho_palavra
         self.current_word = "_" * tamanho_palavra
 
-        self.letrar_tentadas = []
+        self.letras_tentadas = []
 
         self.lista = [pal for pal in BotSigma.lista_de_palavras if len(pal) == tamanho_palavra]
         
 
     def filtra_palavras(self, palavra_secreta):
-        
 
-        # dictionary with the letters and their frequency
-        frequencia_letras_palavra_secreta = {}
-        for letter in palavra_secreta:
-            if letter in frequencia_letras_palavra_secreta:
-                frequencia_letras_palavra_secreta[letter] += 1
-            elif letter != "_":
-                frequencia_letras_palavra_secreta[letter] = 1
-        
+        filtered_list = []
+        for word in self.lista:
+    
+            match = True
+            for i, letter in enumerate(palavra_secreta):
+                if letter != '_' and letter != word[i]:
+                    match = False
+                    break
+            if match:
+                filtered_list.append(word)
 
-        # remove word that letters not in the same position as the secret word
-        for palavra in self.lista:
-            for idx in range(len(palavra_secreta)):
-                if palavra_secreta[idx] != "_":
-                    if palavra_secreta[idx] != palavra[idx]:
-                        self.lista.remove(palavra)
-                        break
-
-            
-        for palavra_da_lista in self.lista:
-            freq_palavra_lista = {}
-
-            for letter in palavra_da_lista:
-                if letter in freq_palavra_lista:
-                    freq_palavra_lista[letter] += 1
-                else:
-                    freq_palavra_lista[letter] = 1
-
-            
-            for letra in frequencia_letras_palavra_secreta.keys():
-                if letra in freq_palavra_lista:
-                    if frequencia_letras_palavra_secreta[letra] != freq_palavra_lista[letra]:
-                        self.lista.remove(palavra_da_lista)
-                        break
-
-
-        return self.lista
+        self.lista = filtered_list
     
     def letra_com_maior_frequencia(self):
 
@@ -61,7 +47,7 @@ class BotSigma:
 
         for palavra in self.lista:
             for letra in palavra:
-                if letra not in self.letrar_tentadas:
+                if letra not in self.letras_tentadas:
                     if letra in dict_letras:
                         dict_letras[letra] += 1
                     else:
@@ -70,10 +56,46 @@ class BotSigma:
         if not dict_letras:
             return None
         # get the letter with the highest frequency
-        letter = max(dict_letras, key=dict_letras.get)
+        return max(dict_letras, key=dict_letras.get)
+    
 
-        return letter
+    
+    def jogar(self, jogo):
+        while jogo.vidas > 0:
 
+            if "_" not in self.current_word:
+                if jogo.tentar_palavra(self.current_word):
+                    
+                    return True
+            
+            if len(self.lista) == 1:
+                if jogo.tentar_palavra(self.lista[0]):
+                    return True
+
+            letra_com_maior_frequencia = self.letra_com_maior_frequencia()
+        
+        
+            # If letra_com_maior_frequencia is None, break the loop
+            if letra_com_maior_frequencia is None:
+                break
+
+            
+            posicoes_letras = jogo.tentar_letra(letra_com_maior_frequencia)
+
+            if posicoes_letras == False:
+                break
+
+            for indice_letra in posicoes_letras:
+                self.current_word = self.current_word[:indice_letra] + letra_com_maior_frequencia + self.current_word[indice_letra+1:] 
+            
+            
+            self.letras_tentadas.append(letra_com_maior_frequencia)
+            
+            self.filtra_palavras(self.current_word)
+        
+        return False
+
+        
 import random
 
 
@@ -82,14 +104,6 @@ class JogoDeForca:
     lista_de_palavras = []
 
     def __init__(self):
-        # import requests
-        # url = 'https://www.ime.usp.br/~pf/dicios/br-sem-acentos.txt'
-        # r = requests.get(url, allow_redirects=True)
-        # if r.status_code==200:
-        #     self.content = str(r.content.decode()).split('\n')
-        # else:
-        #     print("Erro: ", r.status_code)
-
         self.content = JogoDeForca.lista_de_palavras
     
     def novo_jogo(self, vidas=5):
@@ -120,66 +134,30 @@ class JogoDeForca:
                 return False
             
 
-vitorias = 0
 
-lista = []
-url = 'https://www.ime.usp.br/~pf/dicios/br-sem-acentos.txt'
-r = requests.get(url, allow_redirects=True)
-if r.status_code==200:
-    lista = str(r.content.decode()).split('\n')
-    print("Lista de palavras carregada com sucesso!")
-    
-else:
-    print("Erro: ", r.status_code)
+lista = obter_palavras()
 
 BotSigma.lista_de_palavras = lista
 JogoDeForca.lista_de_palavras = lista
 
+n_jgos = 100
+vitorias = 0
 
-n_jgos = 1
 
 for i in range(n_jgos):
+    
     jogo = JogoDeForca()
     new_game = jogo.novo_jogo()
+    
     bot = BotSigma(new_game)
 
     # cortar palavras sem o mesmo tamanho
+    ganhou = bot.jogar(jogo)
+    if ganhou:
+        vitorias += 1
 
-    while jogo.vidas > 0:
-
-
-        if "_" not in bot.current_word:
-            if jogo.tentar_palavra(bot.current_word):
-                vitorias += 1
-                break
-
-        letra_com_maior_frequencia = bot.letra_com_maior_frequencia()
-        print("----------------------------------")
-        print("Vidas: ", jogo.vidas)
-        print(bot.current_word)
-        print("Letras tentadas: ", bot.letrar_tentadas)
-        print("Letra com maior frequência: ", letra_com_maior_frequencia)
-        print(bot.lista)
-
+    
         
-        # If letra_com_maior_frequencia is None, break the loop
-        if letra_com_maior_frequencia is None:
-            break
-
-        
-        posicoes_letras = jogo.tentar_letra(letra_com_maior_frequencia)
-
-        if posicoes_letras == False:
-            break
-
-        for indice_letra in posicoes_letras:
-            bot.current_word = bot.current_word[:indice_letra] + letra_com_maior_frequencia + bot.current_word[indice_letra+1:] 
-        
-        # print(bot.current_word)
-        
-        bot.letrar_tentadas.append(letra_com_maior_frequencia)
-        # print(len(bot.lista))
-        bot.filtra_palavras(bot.current_word)
 
     
 print("Vitórias: ", vitorias)
