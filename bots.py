@@ -16,15 +16,9 @@ class BotSigma:
 
     lista_de_palavras = []
 
-    def __init__(self, tamanho_palavra):
-
-        self.tamanho_palavra = tamanho_palavra
-        self.current_word = "_" * tamanho_palavra
-
+    def __init__(self ):
+        self.current_word = ""
         self.letras_tentadas = []
-
-        self.lista = [pal for pal in BotSigma.lista_de_palavras if len(pal) == tamanho_palavra]
-        
 
     def filtra_palavras(self, palavra_secreta):
 
@@ -61,6 +55,12 @@ class BotSigma:
 
     
     def jogar(self, jogo):
+
+        n = jogo.novo_jogo()
+        
+        self.current_word = "_" * n
+        self.lista = [pal for pal in BotSigma.lista_de_palavras if len(pal) == n]
+
         while jogo.vidas > 0:
 
             if "_" not in self.current_word:
@@ -147,9 +147,9 @@ vitorias = 0
 for i in range(n_jgos):
     
     jogo = JogoDeForca()
-    new_game = jogo.novo_jogo()
+    # new_game = jogo.novo_jogo()
     
-    bot = BotSigma(new_game)
+    bot = BotSigma()
 
     # cortar palavras sem o mesmo tamanho
     ganhou = bot.jogar(jogo)
