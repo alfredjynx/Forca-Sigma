@@ -3,7 +3,7 @@ import pandas as pd
 
 class Forca:
     def __init__(self):
-        self.content = pd.read_csv('palavras.csv')['Palavras']
+        self.content = pd.read_csv('palavras.csv')['Palavras'].tolist()
     
     def novo_jogo(self, vidas=5):
         self.vidas = vidas
