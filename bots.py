@@ -1,8 +1,6 @@
 import requests
-from copy import deepcopy
 
 def obter_palavras():
-
     url = 'https://www.ime.usp.br/~pf/dicios/br-sem-acentos.txt'
     r = requests.get(url, allow_redirects=True)
     if r.status_code==200:
@@ -142,7 +140,6 @@ JogoDeForca.lista_de_palavras = lista
 
 n_jgos = 100
 vitorias = 0
-
 
 for i in range(n_jgos):
     
