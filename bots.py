@@ -162,32 +162,3 @@ class JogoDeForca:
                 return False
             
 
-
-lista = obter_palavras()
-
-BotSigma.lista_de_palavras = lista
-JogoDeForca.lista_de_palavras = lista
-
-n_jgos = 100
-vitorias = 0
-
-for i in range(n_jgos):
-    
-    jogo = JogoDeForca()
-    # new_game = jogo.novo_jogo()
-    
-    bot = BotSigma()
-
-    # cortar palavras sem o mesmo tamanho
-    ganhou = bot.jogar(jogo)
-    if ganhou:
-        vitorias += 1
-
-    
-        
-
-    
-print("Vitórias: ", vitorias)
-print("Derrotas: ", n_jgos-vitorias)
-print("Porcentagem de vitórias: ", vitorias/n_jgos*100, "%")
-
