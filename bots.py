@@ -1,4 +1,3 @@
-import requests
 import pandas as pd
 import random
 
@@ -10,7 +9,7 @@ def obter_palavras():
 class BotSigma:
 
     # lista de palavras - totais
-    lista_de_palavras = []
+    lista_de_palavras = obter_palavras()
 
     # inicialização - guardam a palavra atual (apenas as letras obtidas) e as letras que foram tentatadas
     def __init__(self ):
@@ -129,7 +128,7 @@ class BotSigma:
 
 class JogoDeForca:
 
-    lista_de_palavras = []
+    lista_de_palavras = obter_palavras()
 
     def __init__(self):
         self.content = JogoDeForca.lista_de_palavras
