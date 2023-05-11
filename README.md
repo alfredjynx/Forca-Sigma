@@ -39,4 +39,4 @@ Esse é o loop básico da função.
 
 A última célula do `demo.py` roda 100 vezes 100 iterações do robô, e nos trás uma acurácia média em forma da porcentagem de vitória, ou seja, a porcentagem de vezes que o robô chega no resultado correto. 
 
-O resultado atual da célula (pois ela muda cada vez que você a executa) está com uma acurácia média de 
+O resultado atual da célula (pois ela muda cada vez que você a executa) está com uma acurácia média de 90%, um resultado excelente. 
